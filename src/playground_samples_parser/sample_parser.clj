@@ -33,7 +33,6 @@
                (html/select page [:script]))))
 
 (defn- parse-html-sample [path]
-  (info "parse-html-sample" path)
   (let [page (html/html-resource (file path))
         script-node (first (filter #(not (:src (:attrs %)))
                                    (html/select page [:script])))
