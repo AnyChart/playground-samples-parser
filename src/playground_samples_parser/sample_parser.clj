@@ -64,7 +64,6 @@
      :index 1000}))
 
 (defn- parse-sample [path]
-  (info "parse-sample" path)
   (let [raw-content (slurp path)
         matches (re-matches #"(?s)(?m)(^\{[^\}]+\}).*" raw-content)
         meta (if matches (try (read-string (last matches))
@@ -87,7 +86,6 @@
     (str base-path group "_samples/" sample))) 
 
 (defn parse [base-path group sample]
-  (info "parse" base-path group sample)
   (let [path (sample-path base-path group sample)
         name (clojure.string/replace sample #"\.(html|sample)$" "")
         base-info (if (.endsWith path ".html")
