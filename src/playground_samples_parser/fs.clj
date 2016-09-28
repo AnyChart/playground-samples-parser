@@ -91,6 +91,9 @@
                  (filter #(seq (:samples %))
                          (map #(create-group-info path %) (get-groups-from-fs path))))))
 
+(defn samples [path]
+  (mapcat :samples (groups path)))
+
 (defn get-config [path file-name]
   (let [path (str (to-folder-path path) file-name)]
     (if (.exists (file path))
