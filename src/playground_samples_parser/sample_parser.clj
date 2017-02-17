@@ -4,6 +4,19 @@
             [clojure.string :as s :refer (trim-newline)]
             [clojure.java.io :refer [file]]))
 
+(defn- ^String trim-newline-left [^CharSequence s]
+  (loop [index 0]
+    (if (= 0 (.length s))
+      ""
+      (let [ch (.charAt s index)]
+        (if (or (= ch \newline) (= ch \return))
+          (recur (inc index))
+          (.. s (subSequence index (.length s)) toString))))))
+
+(defn trim-code [code]
+  (-> code trim-newline trim-newline-left))
+
+;; for old playground
 (defn check-export [sample]
   (let [export (:exports sample)
         pattern (re-pattern (str export "\\s*="))]
@@ -16,16 +29,6 @@
           new-code (-> (:code sample) (s/replace pattern export))]
       (assoc sample :code new-code))
     sample))
-
-(defn- trim-code [code]
-  (let [s (trim-newline code)]
-    (loop [index 0]
-      (if (= 0 (.length s))
-        ""
-        (let [ch (.charAt s index)]
-          (if (or (= ch \newline) (= ch \return))
-            (recur (inc index))
-            (.. s (subSequence index (.length s)) toString)))))))
 
 (defn- get-external-scripts [page]
   (map #(:src (:attrs %))
@@ -87,10 +90,8 @@
 (defn parse [base-path group sample]
   (let [path (sample-path base-path group sample)
         name (clojure.string/replace sample #"\.(html|sample)$" "")
-        base-info (if (.endsWith path ".html")
-                    (parse-html-sample path)
-                    (if (.endsWith path ".sample")
-                      (parse-sample path)))]
+        base-info (cond (.endsWith path ".html") (parse-html-sample path)
+                        (.endsWith path ".sample") (parse-sample path))]
     (when base-info
       (assoc (fix-exports base-info)
         :name (if (:custom-name base-info)
