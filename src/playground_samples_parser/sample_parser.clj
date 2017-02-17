@@ -52,15 +52,15 @@
                  html/emit*)
         exports (:x-export (:attrs script-node))]
 
-    {:tags []
-     :scripts (get-external-scripts page)
-     :css_libs (map #(-> % :attrs :href) css-nodes)
-     :description (apply str desc)
+    {:tags              []
+     :scripts           (get-external-scripts page)
+     :css_libs          (map #(-> % :attrs :href) css-nodes)
+     :description       (apply str desc)
      :short_description (apply str short-desc)
-     :is_new false
-     :exports (if exports exports "chart")
-     :code (clojure.string/replace code #"(?m)^[ ]{8}" "")
-     :index 1000}))
+     :is_new            false
+     :exports           (if exports exports "chart")
+     :code              (trim-code (clojure.string/replace code #"(?m)^[ ]{8}" ""))
+     :index             1000}))
 
 (defn- parse-sample [path]
   (let [raw-content (slurp path)

@@ -1,5 +1,5 @@
-(defproject com.anychart/playground-samples-parser "0.1.1-SNAPSHOT"
-  :description "DELETE ME"
+(defproject com.anychart/playground-samples-parser "0.1.2-SNAPSHOT"
+  :description "Anychart samples parsing library"
   :url "https://github.com/AnyChart/playground-samples-parser"
   :license {:name "MIT License"
             :url "https://opensource.org/licenses/MIT"}
