@@ -59,7 +59,7 @@
                      (not (.isHidden %)))
                (.listFiles (file path)))))
 
-(defn- create-group-info [path group]
+(defn- create-group-info [path group vars]
   ;(info "creating group:" group path (load-group-config path group))
   (let [group-path (str (to-folder-path path) (to-folder-path group))
         samples (get-group-samples group-path #{"sample" "html"})]
@@ -72,20 +72,19 @@
                         (= group ""))
             :root (= group "")
             :name (prettify-name group)
-            :samples (map #(sample-parser/parse (to-folder-path path) (to-folder-path group) %)
+            :samples (map #(sample-parser/parse (to-folder-path path) (to-folder-path group) % vars)
                           samples)})))
 
 ;; for old playground
-(defn groups [path]
+(defn groups [path vars]
   (info "searching for samples in" path)
   (->> (get-groups-from-fs path)
-       (map #(create-group-info path %))
+       (map #(create-group-info path % vars))
        (filter #(seq (:samples %)))
-       (cons (create-group-info path ""))
+       (cons (create-group-info path "" vars))
        (sort-by (juxt :index :name))))
 
 ;; for docs-engine
-(defn samples [path]
-  (mapcat :samples (groups path)))
-
+(defn samples [path vars]
+  (mapcat :samples (groups path vars)))
 

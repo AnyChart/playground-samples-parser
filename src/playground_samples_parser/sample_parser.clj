@@ -35,8 +35,16 @@
        (filter #(some? (:data-export (:attrs %)))
                (html/select page [:script]))))
 
-(defn- parse-html-sample [path]
-  (let [page (html/html-resource (file path))
+(defn replace-vars [s vars]
+  (reduce (fn [s [key value]]
+            (clojure.string/replace s
+                                    (re-pattern (str "\\{\\{" (name key) "\\}\\}"))
+                                    (str value)))
+          s vars))
+
+(defn- parse-html-sample [path vars]
+  (let [data (replace-vars (slurp path) vars)
+        page (html/html-resource (java.io.StringReader. data))
         script-node (first (filter #(not (:src (:attrs %)))
                                    (html/select page [:script])))
         css-nodes (filter #(and (= (-> % :attrs :rel) "stylesheet")
@@ -87,10 +95,10 @@
     (str base-path group sample)
     (str base-path group "_samples/" sample))) 
 
-(defn parse [base-path group sample]
+(defn parse [base-path group sample vars]
   (let [path (sample-path base-path group sample)
         name (clojure.string/replace sample #"\.(html|sample)$" "")
-        base-info (cond (.endsWith path ".html") (parse-html-sample path)
+        base-info (cond (.endsWith path ".html") (parse-html-sample path vars)
                         (.endsWith path ".sample") (parse-sample path))]
     (when base-info
       (assoc (fix-exports base-info)
