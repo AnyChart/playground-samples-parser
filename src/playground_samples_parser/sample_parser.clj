@@ -31,9 +31,10 @@
     sample))
 
 (defn- get-external-scripts [page]
-  (map #(:src (:attrs %))
-       (filter #(some? (:data-export (:attrs %)))
-               (html/select page [:script]))))
+  (->> (html/select page [:script])
+       (filter #(and (:src (:attrs %))
+                     (.startsWith (-> % :attrs :src) "http")))
+       (map #(-> % :attrs :src))))
 
 (defn replace-vars [s vars]
   (reduce (fn [s [key value]]
@@ -42,7 +43,7 @@
                                     (str value)))
           s vars))
 
-(defn- parse-html-sample [path vars]
+(defn parse-html-sample [path vars]
   (let [data (replace-vars (slurp path) vars)
         page (html/html-resource (java.io.StringReader. data))
         script-node (first (filter #(not (:src (:attrs %)))
@@ -93,7 +94,7 @@
 (defn- sample-path [base-path group sample]
   (if (.exists (file (str base-path group sample)))
     (str base-path group sample)
-    (str base-path group "_samples/" sample))) 
+    (str base-path group "_samples/" sample)))
 
 (defn parse [base-path group sample vars]
   (let [path (sample-path base-path group sample)
