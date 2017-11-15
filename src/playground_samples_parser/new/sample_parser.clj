@@ -166,5 +166,7 @@
       (assoc base-info
         :name (or (:name base-info) (clojure.string/replace name #"_" " "))
         :hidden (= name "Coming_Soon")
-        :url (str (.substring group 1)
+        :url (str (if (.startsWith group "/")
+                    (.substring group 1)
+                    group)
                   (clojure.string/replace name #"%" "%25"))))))
