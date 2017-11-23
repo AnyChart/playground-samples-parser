@@ -77,7 +77,6 @@
 
 ;; for old playground
 (defn groups [path vars]
-  (info "searching for samples in" path)
   (->> (get-groups-from-fs path)
        (filter #(not= % "api-generator"))
        (map #(create-group-info path % vars))
