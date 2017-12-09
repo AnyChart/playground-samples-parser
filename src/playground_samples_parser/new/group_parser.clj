@@ -86,4 +86,4 @@
 
 ;; for docs-engine
 (defn samples [path vars]
-  (mapcat :samples (groups path vars)))
+  (doall (mapcat :samples (groups path vars))))

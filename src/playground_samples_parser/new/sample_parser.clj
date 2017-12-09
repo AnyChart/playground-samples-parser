@@ -29,9 +29,9 @@
 (defn trim-code
   "Delete so many spaces from string start as it have at first line"
   [s]
-  (when s
+  (when (and s (seq s))
     (let [trailing-s (-> s trim-trailing trim-newline-left)
-          space-count (space-count trailing-s)
+          space-count (space-count (last (string/split-lines trailing-s)))
           pattern (re-pattern (str "(?m)^[ ]{" space-count "}"))]
       (clojure.string/replace trailing-s pattern ""))))
 
@@ -143,19 +143,22 @@
 
 
 (defn parse [base-path group sample vars]
-  ;(prn "parse sample: " base-path group config sample)
-  (let [path (sample-path base-path group sample)
-        name (clojure.string/replace sample #"\.(html|sample)$" "")
-        sample-str (-> path slurp (replace-vars vars))
-        base-info (cond (.endsWith path ".html") (parse-html-sample sample-str)
-                        (.endsWith path ".sample") (if (html? sample-str)
-                                                     (parse-html-sample sample-str)
-                                                     (parse-toml-sample path sample-str)))]
-    (when base-info
-      (assoc base-info
-        :name (or (:name base-info) (clojure.string/replace name #"_" " "))
-        :hidden (= name "Coming_Soon")
-        :url (str (if (.startsWith group "/")
-                    (.substring group 1)
-                    group)
-                  (clojure.string/replace name #"%" "%25"))))))
+  (try
+    (let [path (sample-path base-path group sample)
+          name (clojure.string/replace sample #"\.(html|sample)$" "")
+          sample-str (-> path slurp (replace-vars vars))
+          base-info (cond (.endsWith path ".html") (parse-html-sample sample-str)
+                          (.endsWith path ".sample") (if (html? sample-str)
+                                                       (parse-html-sample sample-str)
+                                                       (parse-toml-sample path sample-str)))]
+      (when base-info
+        (assoc base-info
+          :name (or (:name base-info) (clojure.string/replace name #"_" " "))
+          :hidden (= name "Coming_Soon")
+          :url (str (if (.startsWith group "/")
+                      (.substring group 1)
+                      group)
+                    (clojure.string/replace name #"%" "%25")))))
+    (catch Exception e
+      (prn "SAMPLE PARSER ERROR: " base-path group sample e)
+      nil)))
