@@ -2,10 +2,13 @@
   (:require [playground-samples-parser.new.sample-parser :as sample-parser]
             [clojure.java.io :refer [file]]
             [clojure.string :refer [re-quote-replacement]]
-            [taoensso.timbre :refer [info]]))
+            [taoensso.timbre :refer [info]])
+  (:import (java.io File)))
 
 (defn- to-folder-path [path]
-  (if (.endsWith path "/") path (str path "/")))
+  (if (.endsWith path (File/separator))
+    path
+    (str path (File/separator))))
 
 (defn- prettify-name [path]
   (clojure.string/replace path #"_" " "))
@@ -45,7 +48,7 @@
                        (not (= (.getName %) "_samples"))
                        (not (= fpath %))))
          (map #(clojure.string/replace (.getAbsolutePath %)
-                                       (re-quote-replacement (to-folder-path path)) "")))))
+                                       (re-pattern (re-quote-replacement (to-folder-path path))) "")))))
 
 ;; for old playground
 (defn get-config [path file-name]
