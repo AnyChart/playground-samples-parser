@@ -1,4 +1,4 @@
-(defproject com.anychart/playground-samples-parser "0.2.1"
+(defproject com.anychart/playground-samples-parser "0.2.2"
   :description "Anychart samples parsing library"
   :url "https://github.com/AnyChart/playground-samples-parser"
   :license {:name "MIT License"
