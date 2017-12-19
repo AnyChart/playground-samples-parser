@@ -102,7 +102,7 @@
         base-info (cond (.endsWith path ".html") (parse-html-sample path vars)
                         (.endsWith path ".sample") (parse-sample path))]
     (when base-info
-      (assoc (fix-exports base-info)
+      (assoc base-info
         :name (if (:custom-name base-info)
                 (:custom-name base-info)
                 (clojure.string/replace name #"_" " "))
