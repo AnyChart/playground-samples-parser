@@ -52,6 +52,7 @@
                                 (-> % :attrs :href some?))
                           (html/select page [:link]))
         code (apply str (:content script-node))
+
         desc (-> page
                  (html/select [:description])
                  first
@@ -62,13 +63,22 @@
                  first
                  :content
                  html/emit*)
+
+        description (some->> (html/select page [:meta])
+                             (filter #(= "ac:desc" (:name (:attrs %))))
+                             first :attrs :content)
+
+        short-description (some->> (html/select page [:meta])
+                                   (filter #(= "ac:short-desc" (:name (:attrs %))))
+                                   first :attrs :content)
+
         exports (:x-export (:attrs script-node))]
 
     {:tags              []
      :scripts           (get-external-scripts page)
      :css_libs          (map #(-> % :attrs :href) css-nodes)
-     :description       (apply str desc)
-     :short_description (apply str short-desc)
+     :description       (if desc (apply str desc) description)
+     :short_description (if short-desc (apply str short-desc) short-description)
      :is_new            false
      :exports           (if exports exports "chart")
      :code              (trim-code (clojure.string/replace code #"(?m)^[ ]{8}" ""))
